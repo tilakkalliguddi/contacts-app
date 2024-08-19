@@ -1,0 +1,17 @@
+<mat-card class="listCard" appearance="outlined">
+  <mat-card-content>
+    <mat-toolbar>
+      <span>Contact List</span>
+    </mat-toolbar>
+
+    <mat-list>
+      @for(contact of contacts; track i; let i = $index){<mat-list-item (click)="onEditContact(contact, i)">
+        <p [routerLink]="['contact-details',contact.id]" routerLinkActive="active" matLine>{{ i+1+". "+ contact.name }}
+          <mat-icon mat-icon-button style="float: right;"
+            (click)="onDeleteContact(i); $event.stopPropagation();">delete</mat-icon>
+      </p>
+
+      </mat-list-item>}
+    </mat-list>
+  </mat-card-content>
+</mat-card>

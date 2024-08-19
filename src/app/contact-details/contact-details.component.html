@@ -1,0 +1,18 @@
+<mat-card appearance="outlined" #contactFormModel>
+  <mat-card-content>
+    <div class="topBar">
+      <h6>Contact Details</h6>
+      <button mat-raised-button (click)="editContact(contact.id)">Edit Contact</button>
+    </div>
+    @if (contact){
+    <mat-card-content>
+      <p><strong>Name :</strong> {{ contact.name }}</p>
+      @for(mail of contact.emails; track i; let i = $index){<p><strong>Email {{(mail.label)}} :</strong> {{ mail.email
+        }}</p>}
+      @for(phone of contact.phoneNumbers; track i; let i = $index){<p><strong>Phone {{(phone.label)}} :</strong> {{
+        phone.phoneNumber }}</p>}
+      <p><strong>Address :</strong> {{ contact.address }}</p>
+    </mat-card-content>
+    }
+  </mat-card-content>
+</mat-card>

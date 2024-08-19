@@ -1,1 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+.example-spacer {
+    flex: 1 1 auto;
+  }
+
+  .example-container {
+    width: auto;
+    height: 90vh;
+    margin: 10px;
+    background: #eee;
+  }
+
+  mat-form-field{
+    width: 22rem;
+  }
+
+  .mat-mdc-form-field-icon-suffix ng-tns-c2400808035-9 ng-star-inserted{
+    display: contents;
+  }

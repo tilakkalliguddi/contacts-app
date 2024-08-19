@@ -1,0 +1,40 @@
+mat-grid-tile {
+  background: lightblue;
+  position: inherit;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+form {
+  display: grid;
+  justify-content: center;
+  margin-top: 3%;
+
+}
+
+.mat-mdc-form-field-infix {
+  display: flex !important;
+}
+
+.icons {
+  height: 0rem;
+  display: flex;
+}
+
+form button {
+  width: 86%;
+}
+
+.phoneInp {
+  width: 59%;
+  margin-left: 1%;
+}
+
+.label {
+  width: 25%;
+}
+
