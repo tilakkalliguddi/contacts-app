@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { Subscription } from 'rxjs';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-contact-list',
@@ -23,6 +25,7 @@ export class ContactListComponent {
   private contactListSub!: Subscription;
   contactService = inject(ContactService)
   router = inject(Router)
+  dialog=inject(MatDialog)
 
   ngOnInit(): void {
     this.loadContacts();
@@ -40,7 +43,15 @@ export class ContactListComponent {
   }
 
   onDeleteContact(index: number): void {
-    this.contactService.deleteContact(index);
-    this.loadContacts();
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '600px',
+      data: { title: 'Confirm Delete', message: 'Are you sure, you want to delete this contact?' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.contactService.deleteContact(index);
+      }
+    });
   }
 }
