@@ -9,7 +9,7 @@ import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Va
 import { ContactService } from '../services/service.service';
 import { MatIconModule } from '@angular/material/icon';
 import { v4 as uuidv4 } from 'uuid';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -43,6 +43,10 @@ export class ContactFormComponent {
 
   isEditMode: boolean = false;
   contactId: string | null = null;
+  isOtherPhoneLabelSelected: boolean[] = [];
+  isOtherMailLabelSelected: boolean[] = [];
+
+
 
   contactForm = this.fb.group({
     id: [uuidv4()],
@@ -52,20 +56,16 @@ export class ContactFormComponent {
     address: [""]
   });
 
-  phoneLabels: { value: string, viewValue: string }[] = [
-    { value: 'Home', viewValue: 'Home' },
-    { value: 'Mobile', viewValue: 'Mobile' },
-    { value: 'Office', viewValue: 'Office' },
-  ];
+  
 
-  mailLabels: { value: string, viewValue: string }[] = [
-    { value: 'Home', viewValue: 'Home' },
-    { value: 'personal', viewValue: 'personal' },
-    { value: 'Office', viewValue: 'Office' },
-  ];
+
 
   ngOnInit(): void {
     this.contactId = this.route.snapshot.paramMap.get('id');
+    this.isOtherPhoneLabelSelected.push(false);
+    this.isOtherMailLabelSelected.push(false);
+
+
     if (this.contactId) {
       this.isEditMode = true;
       this.loadContactDetails(this.contactId);
@@ -74,14 +74,21 @@ export class ContactFormComponent {
 
   // Phone numbers field
 
+  phoneLabels: { value: string, viewValue: string }[] = [
+    { value: 'Home', viewValue: 'Home' },
+    { value: 'Mobile', viewValue: 'Mobile' },
+    { value: 'Office', viewValue: 'Office' },
+  ];
+
   get phoneNumbers(): FormArray {
     return this.contactForm.get('phoneNumbers') as FormArray;
   }
 
-  createPhoneNumberField(phoneNumber: string = "", label: string = ""): FormGroup {
+  createPhoneNumberField(phoneNumber: string = "", label: string = "", customPhoneLabel: string = ""): FormGroup {
     return this.fb.group({
       phoneNumber: [phoneNumber, Validators.required],
-      label: [label, Validators.required]
+      label: [label, Validators.required],
+      customPhoneLabel: [customPhoneLabel],
     });
   }
   addPhoneNumber() {
@@ -95,13 +102,20 @@ export class ContactFormComponent {
 
   // Email field
 
+  mailLabels: { value: string, viewValue: string }[] = [
+    { value: 'Home', viewValue: 'Home' },
+    { value: 'personal', viewValue: 'personal' },
+    { value: 'Office', viewValue: 'Office' },
+  ];
+
   get emails(): FormArray {
     return this.contactForm.get('emails') as FormArray;
   }
-  createEmailField(email: string = "", label: string = ""): FormGroup {
+  createEmailField(email: string = "", label: string = "",customMailLabel=""): FormGroup {
     return this.fb.group({
       email: [email, Validators.required],
-      label: [label, Validators.required]
+      label: [label, Validators.required],
+      customMailLabel: [customMailLabel],
     });
   }
   addEmail() {
@@ -113,30 +127,68 @@ export class ContactFormComponent {
     }
   }
 
+  onPhoneLabelChange(event: MatSelectChange, index: number): void {
+    this.isOtherPhoneLabelSelected[index] = event.value === 'other';
+}
+onMailLabelChange(event: MatSelectChange, index: number): void {
+  this.isOtherMailLabelSelected[index] = event.value === 'other';
+}
 
   SaveData() {
     if (this.contactForm.valid) {
-      const formData = {
-        ...this.contactForm.value,
-        id: this.isEditMode && this.contactId ? this.contactId : uuidv4()
-      };
+      const formData = this.contactForm.value;
+        if (Array.isArray(formData.phoneNumbers)) {
+        formData.phoneNumbers = formData.phoneNumbers.map((phoneNumber,index) => {
+          if(phoneNumber.label === 'other'){
+            phoneNumber.label = phoneNumber.customLabel
+          }
+          return {
+            ...phoneNumber,
+            label: this.isOtherPhoneLabelSelected[index] ? phoneNumber.customLabel : phoneNumber.label
+
+          };
+        });
+      } else {
+        formData.phoneNumbers = []; 
+      }
+  
+      if (Array.isArray(formData.emails)) {
+        formData.emails = formData.emails.map((email,index) => {
+          if(email.label === 'other'){
+            email.label = email.customLabel
+          }
+          return {
+            ...email,
+            label: this.isOtherMailLabelSelected[index] ? email.customLabel : email.label
+
+          };
+        });
+      } else {
+        formData.emails = []; 
+      }
 
       if (this.isEditMode && this.contactId) {
         this.contactService.updateContact(this.contactId, formData);
       } else {
-        this.contactService.saveContact(formData);
+        this.contactService.saveContact({
+          ...formData,
+          id: uuidv4()
+        });
       }
-
-      this.resetForm();
-      this.router.navigate(['/']);
+  
+      this.resetForm(); 
+      this.router.navigate(['/']); 
     }
   }
+  
+  
+  
 
 
   editContact(contact: any): void {
     this.contactForm.patchValue(contact);
-    this.setPhoneNumbers(contact.phoneNumbers || []);
-    this.setEmails(contact.email || []);
+    this.setPhoneNumbers(contact.phoneNumbers.customPhoneLabel  || []);
+    this.setEmails(contact.email.customMailLabel || []);
 
     this.contactId = contact.id;
     this.isEditMode = true;
@@ -145,14 +197,14 @@ export class ContactFormComponent {
   setPhoneNumbers(phoneNumbers: any[]): void {
     this.phoneNumbers.clear();
     phoneNumbers.forEach(phone => {
-      this.phoneNumbers.push(this.createPhoneNumberField(phone.phoneNumber, phone.label));
+      this.phoneNumbers.push(this.createPhoneNumberField(phone.phoneNumber, phone.label ,phone.customLabel));
     });
   }
 
   setEmails(emails: any[]): void {
     this.emails.clear();
     emails.forEach(mail => {
-      this.emails.push(this.createEmailField(mail.email, mail.label));
+      this.emails.push(this.createEmailField(mail.email, mail.label, mail.customLabel));
     });
   }
 

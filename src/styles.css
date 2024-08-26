@@ -16,7 +16,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   }
 
   mat-form-field{
-    width: 22rem;
+    /* width: 22rem; */
   }
 
   .mat-mdc-form-field-icon-suffix ng-tns-c2400808035-9 ng-star-inserted{

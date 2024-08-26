@@ -17,12 +17,22 @@
 
                     <mat-form-field class="label">
                         <mat-label>Label</mat-label>
-                        <mat-select formControlName="label">
+
+                        
+                        <mat-select formControlName="label" (selectionChange)="onMailLabelChange($event, i)">
                             @for (label of mailLabels; track label) {
                             <mat-option [value]="label.value">{{label.viewValue}}</mat-option>
                             }
+                            <mat-option value="other">Other</mat-option>
                         </mat-select>
                     </mat-form-field>
+
+                    @if(isOtherMailLabelSelected[i]){<mat-form-field class="label">
+                        <mat-label>Custom Label</mat-label>
+                        <input matInput formControlName="customMailLabel">
+                    </mat-form-field>
+                }
+
                     <mat-form-field class="phoneInp">
                         <mat-label>Email</mat-label>
                         <input matInput type="text" formControlName="email">
@@ -44,12 +54,20 @@
 
                     <mat-form-field class="label">
                         <mat-label>Label</mat-label>
-                        <mat-select formControlName="label">
+                        <mat-select formControlName="label" (selectionChange)="onPhoneLabelChange($event, i)">
                             @for (label of phoneLabels; track label) {
                             <mat-option [value]="label.value">{{label.viewValue}}</mat-option>
                             }
+                            <mat-option value="other">Other</mat-option>
                         </mat-select>
                     </mat-form-field>
+                    
+                    @if(isOtherPhoneLabelSelected[i]){<mat-form-field>
+                        <mat-label>Custom Label</mat-label>
+                        <input matInput formControlName="customPhoneLabel" value="phoneNumbers[i].customLabel">
+                    </mat-form-field>
+                }
+
                     <mat-form-field class="phoneInp">
                         <mat-label>Phone</mat-label>
                         <input matInput type="number" formControlName="phoneNumber">
