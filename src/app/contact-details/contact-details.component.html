@@ -2,28 +2,34 @@
   <mat-card-content>
     <div class="topBar">
       <h6>Contact Details</h6>
-      <button mat-raised-button (click)="editContact(contact.id)">Edit Contact</button>
+      <button mat-raised-button color="primary" (click)="editContact(contact.id)">Edit Contact</button>
     </div>
-    @if (contact){
-    <mat-card-content>
-      <p><strong>Name :</strong> {{ contact.name }}</p>
+    @if (contact) {
+    <div class="contact-info">
+      <div class="info-item">
+        <span class="label">Name:</span>
+        <span class="value">{{ contact.name }}</span>
+      </div>
 
-      @for(mail of contact.emails; track i; let i = $index){
-      @if((mail.customMailLabel)== ""){
-      <p><strong>Email ({{mail.label}}) :</strong> {{ mail.email }}</p>}
-      @else {
-      <p><strong>Email ({{mail.customMailLabel}}) :</strong> {{ mail.email }}</p>}
+      @for(mail of contact.emails; track i; let i = $index) {
+      <div class="info-item">
+        <span class="label">Email ({{ mail.customMailLabel || mail.label }}):</span>
+        <span class="value">{{ mail.email }}</span>
+      </div>
       }
 
-      @for(phone of contact.phoneNumbers; track i; let i = $index){
-      @if((phone.customPhoneLabel)== ""){
-      <p><strong>Phone ({{phone.label}}) :</strong> {{ phone.phoneNumber }}</p>}
-      @else {
-      <p><strong>Phone ({{phone.customPhoneLabel}}) :</strong> {{ phone.phoneNumber }}</p>}
+      @for(phone of contact.phoneNumbers; track i; let i = $index) {
+      <div class="info-item">
+        <span class="label">Phone ({{ phone.customPhoneLabel || phone.label }}):</span>
+        <span class="value">{{ phone.phoneNumber }}</span>
+      </div>
       }
 
-      <p><strong>Address :</strong> {{ contact.address }}</p>
-    </mat-card-content>
+      @if(contact.address){<div class="info-item">
+        <span class="label">Address:</span>
+        <span class="value">{{ contact.address }}</span>
+      </div>}
+    </div>
     }
   </mat-card-content>
 </mat-card>

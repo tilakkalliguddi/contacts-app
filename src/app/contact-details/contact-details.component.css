@@ -1,4 +1,31 @@
-.topBar{
+/* .topBar{
     display:flex;
     justify-content: space-between;
+} */
+.topBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.contact-info {
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+}
+
+.label {
+    font-weight: bold;
+    margin-right: 10px;
+    width: 25%;
+}
+
+.value {
+    width: 75%;
 }
