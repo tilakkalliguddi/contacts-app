@@ -9,8 +9,7 @@
         <p [routerLink]="['contact-details',contact.id]" routerLinkActive="active" matLine>{{ i+1+". "+ contact.name }}
           <mat-icon mat-icon-button style="float: right;"
             (click)="onDeleteContact(i); $event.stopPropagation();">delete</mat-icon>
-      </p>
-
+        </p>
       </mat-list-item>}
     </mat-list>
   </mat-card-content>

@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute } from '@angular/router';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 
 @Component({
@@ -29,7 +30,8 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
     MatIconModule,
     MatSelectModule,
     RouterLink,
-    RouterLinkActive
+    RouterLinkActive,
+    CommonModule
   ],
   templateUrl: './contact-form.component.html',
   styleUrls: ['./contact-form.component.css']
@@ -46,8 +48,6 @@ export class ContactFormComponent {
   isOtherPhoneLabelSelected: boolean[] = [];
   isOtherMailLabelSelected: boolean[] = [];
 
-
-
   contactForm = this.fb.group({
     id: [uuidv4()],
     name: ["", Validators.required],
@@ -56,15 +56,10 @@ export class ContactFormComponent {
     address: [""]
   });
 
-  
-
-
-
   ngOnInit(): void {
     this.contactId = this.route.snapshot.paramMap.get('id');
     this.isOtherPhoneLabelSelected.push(false);
     this.isOtherMailLabelSelected.push(false);
-
 
     if (this.contactId) {
       this.isEditMode = true;
@@ -87,7 +82,7 @@ export class ContactFormComponent {
   createPhoneNumberField(phoneNumber: string = "", label: string = "", customPhoneLabel: string = ""): FormGroup {
     return this.fb.group({
       phoneNumber: [phoneNumber, Validators.required],
-      label: [label, Validators.required],
+      label: [label],
       customPhoneLabel: [customPhoneLabel],
     });
   }
@@ -97,6 +92,14 @@ export class ContactFormComponent {
   removePhoneNumber(index: number) {
     if (this.phoneNumbers.length > 1) {
       this.phoneNumbers.removeAt(index);
+    }
+  }
+
+  onPhoneLabelChange(event: MatSelectChange, index: number): void {
+    this.isOtherPhoneLabelSelected[index] = event.value === 'other';
+    if (this.isOtherPhoneLabelSelected[index]) {
+      const phoneLabelControl = this.phoneNumbers.controls[index].get('label');
+      phoneLabelControl?.setValue('');
     }
   }
 
@@ -111,10 +114,10 @@ export class ContactFormComponent {
   get emails(): FormArray {
     return this.contactForm.get('emails') as FormArray;
   }
-  createEmailField(email: string = "", label: string = "",customMailLabel=""): FormGroup {
+  createEmailField(email: string = "", label: string = "", customMailLabel = ""): FormGroup {
     return this.fb.group({
       email: [email, Validators.required],
-      label: [label, Validators.required],
+      label: [label],
       customMailLabel: [customMailLabel],
     });
   }
@@ -127,44 +130,56 @@ export class ContactFormComponent {
     }
   }
 
-  onPhoneLabelChange(event: MatSelectChange, index: number): void {
-    this.isOtherPhoneLabelSelected[index] = event.value === 'other';
-}
-onMailLabelChange(event: MatSelectChange, index: number): void {
-  this.isOtherMailLabelSelected[index] = event.value === 'other';
-}
+  onMailLabelChange(event: MatSelectChange, index: number): void {
+    this.isOtherMailLabelSelected[index] = event.value === 'other';
+    if (this.isOtherMailLabelSelected[index]) {
+      const mailLabelControl = this.emails.controls[index].get('label');
+      mailLabelControl?.setValue('');
+    }
+  }
+
+  onCustomLabelInput(event: Event, index: number, type: 'phone' | 'mail'): void {
+    const input = event.target as HTMLInputElement;
+    if (type === 'phone') {
+      this.phoneNumbers.controls[index].get('customPhoneLabel')?.setValue(input.value);
+      this.phoneNumbers.controls[index].get('label')?.setValue(input.value);
+    } else if (type === 'mail') {
+      this.emails.controls[index].get('customMailLabel')?.setValue(input.value);
+      this.emails.controls[index].get('label')?.setValue(input.value);
+    }
+  }
 
   SaveData() {
     if (this.contactForm.valid) {
       const formData = this.contactForm.value;
-        if (Array.isArray(formData.phoneNumbers)) {
-        formData.phoneNumbers = formData.phoneNumbers.map((phoneNumber,index) => {
-          if(phoneNumber.label === 'other'){
-            phoneNumber.label = phoneNumber.customLabel
+      if (Array.isArray(formData.phoneNumbers)) {
+        formData.phoneNumbers = formData.phoneNumbers.map((phoneNumber, index) => {
+          if (phoneNumber.label === 'other') {
+            phoneNumber.label = phoneNumber.customPhoneLabel
           }
           return {
             ...phoneNumber,
-            label: this.isOtherPhoneLabelSelected[index] ? phoneNumber.customLabel : phoneNumber.label
+            label: this.isOtherPhoneLabelSelected[index] ? phoneNumber.customPhoneLabel : phoneNumber.label
 
           };
         });
       } else {
-        formData.phoneNumbers = []; 
+        formData.phoneNumbers = [];
       }
-  
+
       if (Array.isArray(formData.emails)) {
-        formData.emails = formData.emails.map((email,index) => {
-          if(email.label === 'other'){
-            email.label = email.customLabel
+        formData.emails = formData.emails.map((email, index) => {
+          if (email.label === 'other') {
+            email.label = email.customMailLabel
           }
           return {
             ...email,
-            label: this.isOtherMailLabelSelected[index] ? email.customLabel : email.label
+            label: this.isOtherMailLabelSelected[index] ? email.customMailLabel : email.label
 
           };
         });
       } else {
-        formData.emails = []; 
+        formData.emails = [];
       }
 
       if (this.isEditMode && this.contactId) {
@@ -175,36 +190,36 @@ onMailLabelChange(event: MatSelectChange, index: number): void {
           id: uuidv4()
         });
       }
-  
-      this.resetForm(); 
-      this.router.navigate(['/']); 
+
+      this.resetForm();
+      this.router.navigate(['/']);
     }
   }
-  
-  
-  
 
 
   editContact(contact: any): void {
     this.contactForm.patchValue(contact);
-    this.setPhoneNumbers(contact.phoneNumbers.customPhoneLabel  || []);
-    this.setEmails(contact.email.customMailLabel || []);
-
+    this.setPhoneNumbers(contact.phoneNumbers || []);
+    this.setEmails(contact.emails || []);
     this.contactId = contact.id;
     this.isEditMode = true;
   }
 
   setPhoneNumbers(phoneNumbers: any[]): void {
     this.phoneNumbers.clear();
-    phoneNumbers.forEach(phone => {
-      this.phoneNumbers.push(this.createPhoneNumberField(phone.phoneNumber, phone.label ,phone.customLabel));
+    phoneNumbers.forEach((phone, index) => {
+      const isOther = phone.label === 'Other' || !!phone.customPhoneLabel;
+      this.phoneNumbers.push(this.createPhoneNumberField(phone.phoneNumber, isOther ? '' : phone.label, phone.customPhoneLabel || ''));
+      this.isOtherPhoneLabelSelected[index] = isOther;
     });
   }
 
   setEmails(emails: any[]): void {
     this.emails.clear();
-    emails.forEach(mail => {
-      this.emails.push(this.createEmailField(mail.email, mail.label, mail.customLabel));
+    emails.forEach((mail, index) => {
+      const isOther = mail.label === 'Other' || !!mail.customMailLabel;
+      this.emails.push(this.createEmailField(mail.email, isOther ? '' : mail.label, mail.customMailLabel || ''));
+      this.isOtherMailLabelSelected[index] = isOther;
     });
   }
 

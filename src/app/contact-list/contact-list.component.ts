@@ -25,7 +25,7 @@ export class ContactListComponent {
   private contactListSub!: Subscription;
   contactService = inject(ContactService)
   router = inject(Router)
-  dialog=inject(MatDialog)
+  dialog = inject(MatDialog)
 
   ngOnInit(): void {
     this.loadContacts();

@@ -8,34 +8,32 @@
         <form [formGroup]="contactForm" (ngSubmit)="SaveData()">
             <mat-form-field>
                 <mat-label>Name</mat-label>
-                <input matInput formControlName="name">
+                <input matInput formControlName="name" pattern="[a-zA-Z ]*">
             </mat-form-field>
 
             <div formArrayName="emails">
-                @for(email of this.contactForm.controls.emails.controls; track email; let i = $index ){
+                @for(email of emails.controls; track email; let i = $index ){
                 <div [formGroupName]="i">
-
                     <mat-form-field class="label">
                         <mat-label>Label</mat-label>
-
-                        
-                        <mat-select formControlName="label" (selectionChange)="onMailLabelChange($event, i)">
-                            @for (label of mailLabels; track label) {
-                            <mat-option [value]="label.value">{{label.viewValue}}</mat-option>
-                            }
-                            <mat-option value="other">Other</mat-option>
-                        </mat-select>
+                        <ng-container *ngIf="!isOtherMailLabelSelected[i]; else customMailLabelInput">
+                            <mat-select formControlName="label" (selectionChange)="onMailLabelChange($event, i)">
+                                @for(label of mailLabels; track label){<mat-option [value]="label.value">{{
+                                    label.viewValue }}</mat-option>}
+                                <mat-option value="other">Other</mat-option>
+                            </mat-select>
+                        </ng-container>
+                        <ng-template #customMailLabelInput>
+                            <input matInput formControlName="customMailLabel"
+                                (input)="onCustomLabelInput($event, i, 'mail')" [value]="emails.get('label')?.value"
+                                pattern="[a-zA-Z ]*" />
+                        </ng-template>
                     </mat-form-field>
-
-                    @if(isOtherMailLabelSelected[i]){<mat-form-field class="label">
-                        <mat-label>Custom Label</mat-label>
-                        <input matInput formControlName="customMailLabel">
-                    </mat-form-field>
-                }
 
                     <mat-form-field class="phoneInp">
                         <mat-label>Email</mat-label>
-                        <input matInput type="text" formControlName="email">
+                        <input matInput type="email" formControlName="email"
+                            pattern="\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*">
                         <div class="icons">
                             @if(i === emails.length - 1){
                             <mat-icon mat-icon-button (click)="addEmail()" matSuffix>add</mat-icon>
@@ -48,29 +46,29 @@
                 </div>
                 }
             </div>
-            <div formArrayName="phoneNumbers">
-                @for(phone of this.contactForm.controls.phoneNumbers.controls; track phone; let i = $index ){
-                <div [formGroupName]="i">
 
+            <div formArrayName="phoneNumbers">
+                @for(phone of phoneNumbers.controls; track phone; let i = $index ){
+                <div [formGroupName]="i">
                     <mat-form-field class="label">
                         <mat-label>Label</mat-label>
-                        <mat-select formControlName="label" (selectionChange)="onPhoneLabelChange($event, i)">
-                            @for (label of phoneLabels; track label) {
-                            <mat-option [value]="label.value">{{label.viewValue}}</mat-option>
-                            }
-                            <mat-option value="other">Other</mat-option>
-                        </mat-select>
+                        <ng-container *ngIf="!isOtherPhoneLabelSelected[i]; else customPhoneLabelInput">
+                            <mat-select formControlName="label" (selectionChange)="onPhoneLabelChange($event, i)">
+                                @for(label of phoneLabels; track label){<mat-option [value]="label.value">{{
+                                    label.viewValue }}</mat-option>}
+                                <mat-option value="other">Other</mat-option>
+                            </mat-select>
+                        </ng-container>
+                        <ng-template #customPhoneLabelInput>
+                            <input matInput formControlName="customPhoneLabel"
+                                (input)="onCustomLabelInput($event, i, 'phone')"
+                                [value]="phoneNumbers.get('label')?.value" pattern="[a-zA-Z ]*" />
+                        </ng-template>
                     </mat-form-field>
-                    
-                    @if(isOtherPhoneLabelSelected[i]){<mat-form-field>
-                        <mat-label>Custom Label</mat-label>
-                        <input matInput formControlName="customPhoneLabel" value="phoneNumbers[i].customLabel">
-                    </mat-form-field>
-                }
 
                     <mat-form-field class="phoneInp">
                         <mat-label>Phone</mat-label>
-                        <input matInput type="number" formControlName="phoneNumber">
+                        <input matInput type="number" formControlName="phoneNumber" pattern="^\d{10}$" maxlength="10">
                         <div class="icons">
                             @if(i === phoneNumbers.length - 1){
                             <mat-icon mat-icon-button (click)="addPhoneNumber()" matSuffix>add</mat-icon>
