@@ -7,27 +7,27 @@
     @if (contact) {
     <div class="contact-info">
       <div class="info-item">
-        <span class="label">Name:</span>
-        <span class="value">{{ contact.name }}</span>
+        <span class="label">Name </span>
+        <span class="value">: {{ contact.name }}</span>
       </div>
 
       @for(mail of contact.emails; track i; let i = $index) {
       <div class="info-item">
-        <span class="label">Email ({{ mail.customMailLabel || mail.label }}):</span>
-        <span class="value">{{ mail.email }}</span>
+        <span class="label">Email ({{ mail.customMailLabel || mail.label }}) </span>
+        <span class="value">: {{ mail.email }}</span>
       </div>
       }
 
       @for(phone of contact.phoneNumbers; track i; let i = $index) {
       <div class="info-item">
-        <span class="label">Phone ({{ phone.customPhoneLabel || phone.label }}):</span>
-        <span class="value">{{ phone.phoneNumber }}</span>
+        <span class="label">Phone ({{ phone.customPhoneLabel || phone.label }}) </span>
+        <span class="value">: {{ phone.phoneNumber }}</span>
       </div>
       }
 
       @if(contact.address){<div class="info-item">
-        <span class="label">Address:</span>
-        <span class="value">{{ contact.address }}</span>
+        <span class="label">Address </span>
+        <span class="value">: {{ contact.address }}</span>
       </div>}
     </div>
     }
